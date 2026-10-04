@@ -1,0 +1,83 @@
+body { background: #f7f7fb; }
+
+.event-card { transition: transform .15s ease, box-shadow .15s ease; border: none; box-shadow: 0 2px 10px rgba(0,0,0,.06); }
+.event-card:hover { transform: translateY(-4px); box-shadow: 0 8px 20px rgba(0,0,0,.10); }
+.event-card img { height: 170px; object-fit: cover; }
+
+/* Interactive seat map (Additional Feature) — theater-style seat icons */
+.seat-theater {
+    background: radial-gradient(ellipse at 50% 0%, #6e1f1f 0%, #430f0f 55%, #2a0a0a 100%);
+    border-radius: 14px; padding: 28px 20px; color: #fff;
+}
+.seat-stage {
+    max-width: 420px; margin: 0 auto 28px; text-align: center;
+    padding: 8px; border-radius: 4px; letter-spacing: 3px; font-size: 12px;
+    color: #f3d9a4; background: rgba(255,255,255,.08);
+    border-bottom: 3px solid rgba(255,255,255,.25);
+}
+.seat-legend { display: flex; flex-wrap: wrap; gap: 18px; margin-bottom: 20px; font-size: 14px; }
+.seat-legend .seat { cursor: default; }
+
+.seat-grid { display: inline-block; }
+.seat-row { display: flex; align-items: center; margin-bottom: 6px; justify-content: center; }
+.seat-row-label { width: 20px; font-weight: 700; text-align: center; font-size: 13px; color: #f2e4e4; }
+.seat-aisle { width: 18px; }
+
+.seat {
+    --seat-fill: #9aa0a8; --seat-fill-dark: #7d838b; --seat-border: #6b7078;
+    position: relative;
+    width: 30px; height: 30px; margin: 3px;
+    border-radius: 8px 8px 3px 3px;
+    border: 2px solid var(--seat-border);
+    background: var(--seat-fill);
+    cursor: pointer; user-select: none;
+    display: inline-block;
+    transition: transform .08s ease;
+}
+.seat::before {
+    content: '';
+    position: absolute; left: 4px; right: 4px; top: 4px; bottom: 3px;
+    border-radius: 4px 4px 2px 2px;
+    background: var(--seat-fill-dark);
+    z-index: 0;
+}
+.seat-checkbox { z-index: 1; }
+.seat:not(.sold):not(.house):hover { transform: translateY(-2px); }
+
+.seat-legend .seat { width: 26px; height: 26px; margin: 0; }
+
+.seat.available { --seat-fill: #9aa0a8; --seat-fill-dark: #7d838b; --seat-border: #6b7078; }
+.seat.selected, .seat:has(.seat-checkbox:checked) { --seat-fill: #3aa76d; --seat-fill-dark: #2f8a59; --seat-border: #235f3d; }
+.seat.assigned  { --seat-fill: #3aa76d; --seat-fill-dark: #2f8a59; --seat-border: #235f3d; } /* this ticket tier, org view */
+
+.seat.sold, .seat.taken, .seat.booked, .seat.held {
+    --seat-fill: #b3372f; --seat-fill-dark: #8f2b25; --seat-border: #7a241f;
+    cursor: not-allowed;
+}
+.seat.sold::after, .seat.taken::after, .seat.booked::after, .seat.held::after {
+    content: '';
+    position: absolute; left: 50%; top: 50%; width: 10px; height: 16px;
+    transform: translate(-50%, -50%);
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 10 16'><polyline points='7,0 2,7 6,7 3,16 8,8 4,8' fill='none' stroke='white' stroke-width='1.4' stroke-linejoin='round'/></svg>");
+    background-repeat: no-repeat; background-size: contain;
+}
+
+.seat.house {
+    --seat-fill: #d4a72c; --seat-fill-dark: #b38f24; --seat-border: #8f7018;
+    cursor: not-allowed;
+}
+
+.seat.pending {
+    --seat-fill: #e0912b; --seat-fill-dark: #b8741f; --seat-border: #96601a;
+    cursor: not-allowed;
+}
+.seat.unpriced {
+    --seat-fill: #4b5560; --seat-fill-dark: #3a424b; --seat-border: #2e343b;
+    cursor: default; opacity: .6;
+}
+
+.seat.available:hover { filter: brightness(1.12); }
+
+.captcha-box { background: #eef2ff; border: 1px dashed #6366f1; padding: 8px 12px; border-radius: 8px; font-weight: 600; }
+
+.brand-hero { background: linear-gradient(135deg,#4f46e5,#7c3aed); color: #fff; border-radius: 16px; }

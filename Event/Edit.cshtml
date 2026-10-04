@@ -1,0 +1,58 @@
+@model EventFormViewModel
+@{ ViewData["Title"] = "Edit Event"; }
+
+<div class="card p-4">
+    <h4 class="mb-3">Edit Event</h4>
+    <img id="bannerExistingPreview" src="@Model.ExistingBannerPath" class="mb-3 rounded @(string.IsNullOrEmpty(Model.ExistingBannerPath) ? "d-none" : "")" style="max-height:180px;display:block;" />
+    <form asp-action="Edit" asp-route-id="@Model.EventId" method="post" enctype="multipart/form-data">
+        <input type="hidden" asp-for="EventId" />
+        <input type="hidden" asp-for="ExistingBannerPath" />
+        <div asp-validation-summary="All" class="text-danger"></div>
+        <div class="mb-3"><label class="form-label">Title</label><input asp-for="Title" class="form-control" /></div>
+        <div class="mb-3"><label class="form-label">Description</label><textarea asp-for="Description" class="form-control" rows="4"></textarea></div>
+        <div class="row">
+            <div class="col-md-6 mb-3"><label class="form-label">Start</label><input asp-for="StartDateTime" type="datetime-local" class="form-control" /></div>
+            <div class="col-md-6 mb-3"><label class="form-label">End</label><input asp-for="EndDateTime" type="datetime-local" class="form-control" /></div>
+        </div>
+        <div class="row">
+            <div class="col-md-6 mb-3">
+                <label class="form-label">Category</label>
+                <select asp-for="CategoryId" class="form-select">
+                    @foreach (var c in Model.CategoryOptions) { <option value="@c.CategoryId">@c.Name</option> }
+                </select>
+            </div>
+            <div class="col-md-6 mb-3">
+                <label class="form-label">Venue</label>
+                <select asp-for="VenueId" class="form-select">
+                    @foreach (var v in Model.VenueOptions) { <option value="@v.VenueId">@v.Name (@(v.IsSeated ? "Seated" : "Standing"))</option> }
+                </select>
+            </div>
+        </div>
+        <div class="mb-3">
+            <label class="form-label">Replace Banner Image (optional)</label>
+            <input asp-for="BannerImage" type="file" accept="image/*" class="form-control" />
+        </div>
+        <div class="mb-3">
+            <label class="form-label">Status</label>
+            <select asp-for="Status" class="form-select">
+                <option value="@EventStatus.Draft">Draft</option>
+                <option value="@EventStatus.Published">Published</option>
+                <option value="@EventStatus.Cancelled">Cancelled</option>
+                <option value="@EventStatus.Completed">Completed</option>
+            </select>
+        </div>
+        <button class="btn btn-primary">Save Changes</button>
+        <a class="btn btn-link" asp-action="MyEvents">Cancel</a>
+    </form>
+</div>
+
+@section Scripts {
+    <script>
+        initBannerCropper({
+            inputId: '@Html.IdFor(m => m.BannerImage)',
+            previewId: 'bannerExistingPreview',
+            aspect: 16 / 9,
+            maxWidth: 1200
+        });
+    </script>
+}

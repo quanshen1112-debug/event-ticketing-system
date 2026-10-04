@@ -1,0 +1,48 @@
+@model EventCatalogViewModel
+
+<div class="row g-3">
+    @foreach (var ev in Model.Events)
+    {
+        <div class="col-md-4">
+            <div class="card event-card h-100">
+                <img src="@(string.IsNullOrEmpty(ev.BannerImagePath) ? "https://placehold.co/400x200?text=" + Uri.EscapeDataString(ev.Title) : ev.BannerImagePath)" class="card-img-top" />
+                <div class="card-body">
+                    <span class="badge bg-primary mb-2">@ev.Category?.Name</span>
+                    <h5 class="card-title">@ev.Title</h5>
+                    <p class="text-muted mb-1"><i class="fa-solid fa-calendar"></i> @ev.StartDateTime.ToString("dd MMM yyyy, h:mm tt")</p>
+                    <p class="text-muted mb-1"><i class="fa-solid fa-location-dot"></i> @ev.Venue?.Name</p>
+                    @if (ev.TicketTypes.Any())
+                    {
+                        <p class="fw-semibold">From RM @ev.TicketTypes.Min(t => t.Price).ToString("0.00")</p>
+                    }
+                    @if (ev.Reviews.Any())
+                    {
+                        <p class="text-warning small">
+                            @for (int i = 1; i <= 5; i++) { <i class="fa-solid fa-star @(i <= Math.Round(ev.AverageRating) ? "" : "text-muted")"></i> }
+                            (@ev.Reviews.Count)
+                        </p>
+                    }
+                    <a class="btn btn-outline-primary btn-sm" asp-controller="Event" asp-action="Details" asp-route-id="@ev.EventId">View Details</a>
+                </div>
+            </div>
+        </div>
+    }
+    @if (!Model.Events.Any())
+    {
+        <p class="text-muted">No events match your search.</p>
+    }
+</div>
+
+@if (Model.TotalPages > 1)
+{
+    <nav class="mt-4">
+        <ul class="pagination justify-content-center">
+            @for (int i = 1; i <= Model.TotalPages; i++)
+            {
+                <li class="page-item @(i == Model.Page ? "active" : "")">
+                    <a class="page-link" href="#" data-page="@i">@i</a>
+                </li>
+            }
+        </ul>
+    </nav>
+}

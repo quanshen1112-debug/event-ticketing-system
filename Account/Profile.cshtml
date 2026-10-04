@@ -1,0 +1,48 @@
+@model User
+@{ ViewData["Title"] = "My Profile"; }
+
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <div class="card p-4 mb-4">
+            <h4 class="mb-3">My Profile</h4>
+            <form asp-action="Profile" method="post">
+                <div class="mb-3">
+                    <label class="form-label">Full Name</label>
+                    <input name="fullName" class="form-control" value="@Model.FullName" />
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Email</label>
+                    <input class="form-control" value="@Model.Email" disabled />
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Phone</label>
+                    <input name="phone" class="form-control" value="@Model.Phone" />
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Role</label>
+                    <input class="form-control" value="@Model.Role" disabled />
+                </div>
+                <button type="submit" class="btn btn-primary">Save Changes</button>
+            </form>
+        </div>
+
+        <div class="card p-4">
+            <h5 class="mb-3">Change Password</h5>
+            <form asp-action="ChangePassword" method="post">
+                <div class="mb-3">
+                    <label class="form-label">Current Password</label>
+                    <input name="currentPassword" type="password" class="form-control" required />
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">New Password</label>
+                    <input name="newPassword" type="password" class="form-control" required minlength="8" />
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Confirm New Password</label>
+                    <input name="confirmPassword" type="password" class="form-control" required minlength="8" />
+                </div>
+                <button type="submit" class="btn btn-outline-primary">Change Password</button>
+            </form>
+        </div>
+    </div>
+</div>

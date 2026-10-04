@@ -1,0 +1,14 @@
+@model Category
+@{ ViewData["Title"] = "New Category"; }
+
+<div class="card p-4 col-md-6">
+    <h4 class="mb-3">New Category</h4>
+    <form asp-action="Create" method="post">
+        <div asp-validation-summary="All" class="text-danger"></div>
+        <div class="mb-3"><label class="form-label">Name</label><input asp-for="Name" class="form-control" /></div>
+        <div class="mb-3"><label class="form-label">Chinese Name (optional)</label><input asp-for="NameZh" class="form-control" /></div>
+        <div class="mb-3"><label class="form-label">Description</label><textarea asp-for="Description" class="form-control"></textarea></div>
+        <button class="btn btn-primary">Create</button>
+        <a class="btn btn-link" asp-action="Index">Cancel</a>
+    </form>
+</div>

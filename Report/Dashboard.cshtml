@@ -1,0 +1,71 @@
+@model SalesReportViewModel
+@{ ViewData["Title"] = "Sales Report"; }
+
+<h4 class="mb-3">Sales Report</h4>
+
+<form method="get" class="mb-3">
+    <select name="eventId" class="form-select w-auto d-inline-block" onchange="this.form.submit()">
+        <option value="">All Events</option>
+        @foreach (var e in Model.EventOptions)
+        {
+            <option value="@e.EventId" selected="@(Model.EventId == e.EventId)">@e.Title</option>
+        }
+    </select>
+</form>
+
+<div id="liveNotice" class="alert alert-info d-none"></div>
+
+<div class="row g-3 mb-4">
+    <div class="col-md-4"><div class="card p-3 text-center"><h6 class="text-muted">Total Revenue</h6><h3>RM @Model.TotalRevenue.ToString("0.00")</h3></div></div>
+    <div class="col-md-4"><div class="card p-3 text-center"><h6 class="text-muted">Tickets Sold</h6><h3>@Model.TotalTicketsSold</h3></div></div>
+    <div class="col-md-4"><div class="card p-3 text-center"><h6 class="text-muted">Orders</h6><h3>@Model.TotalOrders</h3></div></div>
+</div>
+
+<div class="row g-3">
+    <div class="col-md-7">
+        <div class="card p-3">
+            <h6>Revenue by Event</h6>
+            <canvas id="revenueChart"></canvas>
+        </div>
+    </div>
+    <div class="col-md-5">
+        <div class="card p-3">
+            <h6>Tickets Sold by Category</h6>
+            <canvas id="categoryChart"></canvas>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+<script>
+    new Chart(document.getElementById('revenueChart'), {
+        type: 'bar',
+        data: {
+            labels: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.ChartLabels)),
+            datasets: [{ label: 'Revenue (RM)', data: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.RevenueByEvent)), backgroundColor: '#4f46e5' }]
+        }
+    });
+
+    new Chart(document.getElementById('categoryChart'), {
+        type: 'pie',
+        data: {
+            labels: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.CategoryLabels)),
+            datasets: [{ data: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.TicketsByCategory)), backgroundColor: ['#4f46e5','#7c3aed','#ec4899','#f59e0b','#10b981','#06b6d4'] }]
+        }
+    });
+
+    // Additional Feature: real-time order/sales update notification via SignalR
+    @if (User.IsInRole("Organizer"))
+    {
+        <text>
+        const connection = new signalR.HubConnectionBuilder().withUrl("/hubs/notifications").build();
+        connection.on("NewOrder", (data) => {
+            const el = document.getElementById('liveNotice');
+            el.classList.remove('d-none');
+            el.textContent = `New order ${data.orderNumber} just came in for RM${data.amount.toFixed(2)}!`;
+        });
+        connection.start().then(() => connection.invoke("JoinOrganizerGroup", @User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)!.Value));
+        </text>
+    }
+</script>
+}

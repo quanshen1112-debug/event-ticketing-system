@@ -1,0 +1,63 @@
+@model List<User>
+@{ ViewData["Title"] = "Manage Users"; }
+
+<h4 class="mb-3">Manage Users</h4>
+@if ((int)ViewBag.PendingOrganizers > 0)
+{
+    <div class="alert alert-info">@ViewBag.PendingOrganizers organizer account(s) awaiting approval.</div>
+}
+
+<table class="table table-hover bg-white">
+    <thead>
+        <tr><th>Name</th><th>Email</th><th>Role</th><th>Status</th><th>Joined</th><th></th></tr>
+    </thead>
+    <tbody>
+    @foreach (var u in Model)
+    {
+        <tr>
+            <td>@u.FullName</td>
+            <td>@u.Email</td>
+            <td><span class="badge bg-secondary">@u.Role</span></td>
+            <td>
+                @{
+                    var badgeClass = u.Status switch
+                    {
+                        UserStatus.Active => "bg-success",
+                        UserStatus.Suspended => "bg-danger",
+                        UserStatus.PendingApproval => "bg-warning text-dark",
+                        _ => "bg-secondary"
+                    };
+                }
+                <span class="badge @badgeClass">@u.Status</span>
+                @if (!u.IsEmailVerified) { <span class="badge bg-light text-dark border">email unverified</span> }
+            </td>
+            <td>@u.CreatedAtUtc.ToString("dd MMM yyyy")</td>
+            <td>
+                @if (u.Status == UserStatus.PendingApproval)
+                {
+                    <form asp-action="Approve" asp-route-id="@u.UserId" method="post" class="d-inline">
+                        <button class="btn btn-sm btn-success">Approve</button>
+                    </form>
+                }
+                @if (u.Status != UserStatus.Suspended)
+                {
+                    <form asp-action="Suspend" asp-route-id="@u.UserId" method="post" class="d-inline">
+                        <button class="btn btn-sm btn-outline-danger">Suspend</button>
+                    </form>
+                }
+                else
+                {
+                    <form asp-action="Reactivate" asp-route-id="@u.UserId" method="post" class="d-inline">
+                        <button class="btn btn-sm btn-outline-success">Reactivate</button>
+                    </form>
+                }
+                <a asp-action="Edit" asp-route-id="@u.UserId" class="btn btn-sm btn-outline-secondary">Edit</a>
+                <form asp-action="Delete" asp-route-id="@u.UserId" method="post" class="d-inline"
+                      onsubmit="return confirm('Permanently delete @u.FullName\'s account? This cannot be undone.');">
+                    <button class="btn btn-sm btn-outline-danger">Delete</button>
+                </form>
+            </td>
+        </tr>
+    }
+    </tbody>
+</table>

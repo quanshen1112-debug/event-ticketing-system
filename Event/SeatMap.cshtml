@@ -1,0 +1,79 @@
+@model SeatMapViewModel
+@{ ViewData["Title"] = "Choose Seats"; }
+
+<h4>Choose your seats &mdash; @Model.EventTitle</h4>
+<p class="text-muted">Click one or more available seats, then confirm your selection below to hold them in your cart for 10 minutes.</p>
+
+<form id="seatSelectForm" asp-controller="Cart" asp-action="AddSeats" method="post">
+    <input type="hidden" name="eventId" value="@Model.EventId" />
+
+    <div class="seat-theater">
+        <div class="seat-legend">
+            <span><span class="seat available d-inline-block align-middle me-1"></span> Available Seats</span>
+            <span><span class="seat selected d-inline-block align-middle me-1"></span> Selected Seats</span>
+            <span><span class="seat sold d-inline-block align-middle me-1"></span> Sold Seats</span>
+            <span><span class="seat house d-inline-block align-middle me-1"></span> House Seats</span>
+        </div>
+
+        <div class="seat-stage">STAGE / FRONT</div>
+
+        <div class="seat-grid mx-auto d-block" style="text-align:center;">
+            @foreach (var row in Model.Seats.GroupBy(s => s.RowLabel).OrderBy(g => g.Key))
+            {
+                var seatsInRow = row.OrderBy(s => s.SeatNumber).ToList();
+                var half = (seatsInRow.Count + 1) / 2;
+                <div class="seat-row">
+                    <span class="seat-row-label me-2">@row.Key</span>
+                    @for (int i = 0; i < seatsInRow.Count; i++)
+                    {
+                        if (i == half && half < seatsInRow.Count)
+                        {
+                            <span class="seat-aisle d-inline-block"></span>
+                        }
+                        var seat = seatsInRow[i];
+                        var cls = seat.Status switch
+                        {
+                            "Available" => "available",
+                            "House" => "house",
+                            _ => "sold" // Held or Booked
+                        };
+                        <label class="seat @cls" style="position:relative;"
+                               data-seat-code="@seat.RowLabel@(seat.SeatNumber)" data-price="@seat.Price.ToString("0.00")"
+                               title="@(cls == "house" ? "House seat (not for sale)" : $"{seat.TicketTypeName} - RM{seat.Price:0.00}")">
+                            @if (User.Identity!.IsAuthenticated && User.IsInRole("Customer") && cls == "available")
+                            {
+                                <input type="checkbox" name="seatIds" value="@seat.SeatId" class="seat-checkbox" style="position:absolute; opacity:0; inset:0; cursor:pointer;" />
+                            }
+                        </label>
+                    }
+                    <span class="seat-row-label ms-2">@row.Key</span>
+                </div>
+            }
+        </div>
+    </div>
+
+    @if (User.Identity!.IsAuthenticated && User.IsInRole("Customer"))
+    {
+        <div id="seatSelectionBar" class="d-flex align-items-center justify-content-between bg-white border rounded p-3 mt-3 d-none">
+            <div>
+                <strong id="seatSelectionCount">0</strong> seat(s) selected
+                &mdash; Total: RM<span id="seatSelectionTotal">0.00</span>
+                <span id="seatSelectionCodes" class="text-muted ms-2"></span>
+            </div>
+            <button type="submit" class="btn btn-primary">Add Selected Seats to Cart</button>
+        </div>
+    }
+</form>
+
+@if (!(User.Identity!.IsAuthenticated && User.IsInRole("Customer")))
+{
+    <p class="text-center mt-3"><a asp-controller="Account" asp-action="Login">Login as a customer</a> to select and book seats.</p>
+}
+
+<div class="text-center mt-3">
+    <strong>Ticket tiers:</strong>
+    @foreach (var tt in Model.Seats.Where(s => s.Status != "House").Select(s => new { s.TicketTypeName, s.Price }).Distinct())
+    {
+        <span class="badge bg-light text-dark border me-1">@tt.TicketTypeName &mdash; RM@(tt.Price.ToString("0.00"))</span>
+    }
+</div>

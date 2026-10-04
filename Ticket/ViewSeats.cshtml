@@ -1,0 +1,58 @@
+@model SeatMapViewModel
+@{ ViewData["Title"] = "Seat Map"; }
+
+<h4>Seat Map &mdash; @Model.EventTitle</h4>
+<p class="text-muted">Read-only overview of every seat at this venue, across all ticket types.</p>
+
+<div class="seat-theater">
+    <div class="seat-legend">
+        <span><span class="seat available d-inline-block align-middle me-1"></span> Available</span>
+        <span><span class="seat pending d-inline-block align-middle me-1"></span> Held (in a cart)</span>
+        <span><span class="seat sold d-inline-block align-middle me-1"></span> Sold</span>
+        <span><span class="seat house d-inline-block align-middle me-1"></span> House Seat</span>
+        <span><span class="seat unpriced d-inline-block align-middle me-1"></span> Not yet priced</span>
+    </div>
+
+    <div class="seat-stage">STAGE / FRONT</div>
+
+    <div class="seat-grid mx-auto d-block" style="text-align:center;">
+        @foreach (var row in Model.Seats.GroupBy(s => s.RowLabel).OrderBy(g => g.Key))
+        {
+            var seatsInRow = row.OrderBy(s => s.SeatNumber).ToList();
+            var half = (seatsInRow.Count + 1) / 2;
+            <div class="seat-row">
+                <span class="seat-row-label me-2">@row.Key</span>
+                @for (int i = 0; i < seatsInRow.Count; i++)
+                {
+                    if (i == half && half < seatsInRow.Count)
+                    {
+                        <span class="seat-aisle d-inline-block"></span>
+                    }
+                    var seat = seatsInRow[i];
+                    var cls = seat.Status switch
+                    {
+                        "Available" => "available",
+                        "Held" => "pending",
+                        "Booked" => "sold",
+                        "House" => "house",
+                        _ => "unpriced"
+                    };
+                    <div class="seat @cls" title="@(seat.RowLabel)@(seat.SeatNumber) &mdash; @seat.TicketTypeName@(cls == "unpriced" || cls == "house" ? "" : $" (RM{seat.Price:0.00})")">
+                    </div>
+                }
+                <span class="seat-row-label ms-2">@row.Key</span>
+            </div>
+        }
+    </div>
+</div>
+
+<div class="mt-3">
+    <strong>Totals:</strong>
+    <span class="badge bg-light text-dark border me-1">Available: @Model.Seats.Count(s => s.Status == "Available")</span>
+    <span class="badge bg-light text-dark border me-1">Held: @Model.Seats.Count(s => s.Status == "Held")</span>
+    <span class="badge bg-light text-dark border me-1">Sold: @Model.Seats.Count(s => s.Status == "Booked")</span>
+    <span class="badge bg-light text-dark border me-1">House: @Model.Seats.Count(s => s.Status == "House")</span>
+    <span class="badge bg-light text-dark border me-1">Unpriced: @Model.Seats.Count(s => s.Status == "Unpriced")</span>
+</div>
+
+<a class="btn btn-link mt-3" asp-action="Index" asp-route-eventId="@Model.EventId">&larr; Back to Ticket Types</a>

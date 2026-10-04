@@ -1,0 +1,42 @@
+@model List<Order>
+@{ ViewData["Title"] = "My Orders"; }
+
+<h4 class="mb-3">My Orders</h4>
+
+@if (!Model.Any())
+{
+    <p class="text-muted">You haven't booked any tickets yet.</p>
+}
+else
+{
+    <table class="table bg-white">
+        <thead><tr><th>Order #</th><th>Date</th><th>Items</th><th>Total</th><th>Status</th><th></th></tr></thead>
+        <tbody>
+        @foreach (var o in Model)
+        {
+            <tr>
+                <td>@o.OrderNumber</td>
+                <td>@o.CreatedAtUtc.ToLocalTime().ToString("dd MMM yyyy")</td>
+                <td>@string.Join(", ", o.OrderItems.Select(i => i.TicketType?.Event?.Title).Distinct())</td>
+                <td>RM @o.TotalAmount.ToString("0.00")</td>
+                <td>
+                    @{
+                        var badge = o.Status switch { OrderStatus.Paid => "bg-success", OrderStatus.Cancelled => "bg-danger", _ => "bg-secondary" };
+                    }
+                    <span class="badge @badge">@o.Status</span>
+                </td>
+                <td>
+                    <a class="btn btn-sm btn-outline-primary" asp-action="Confirmation" asp-route-id="@o.OrderId">View</a>
+                    <a class="btn btn-sm btn-outline-secondary" asp-action="Invoice" asp-route-id="@o.OrderId">Invoice</a>
+                    @if (o.Status == OrderStatus.Paid)
+                    {
+                        <form asp-action="Cancel" asp-route-id="@o.OrderId" method="post" class="d-inline" onsubmit="return confirm('Cancel this order?');">
+                            <button class="btn btn-sm btn-outline-danger">Cancel</button>
+                        </form>
+                    }
+                </td>
+            </tr>
+        }
+        </tbody>
+    </table>
+}

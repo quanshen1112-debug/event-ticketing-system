@@ -1,0 +1,28 @@
+@model List<Venue>
+@{ ViewData["Title"] = "Venues"; }
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h4>Venues</h4>
+    <a class="btn btn-primary" asp-action="Create"><i class="fa-solid fa-plus"></i> New Venue</a>
+</div>
+
+<table class="table bg-white">
+    <thead><tr><th>Name</th><th>Address</th><th>Capacity</th><th>Type</th><th></th></tr></thead>
+    <tbody>
+    @foreach (var v in Model)
+    {
+        <tr>
+            <td>@v.Name</td>
+            <td>@v.Address</td>
+            <td>@v.Capacity</td>
+            <td>@(v.IsSeated ? $"Seated ({v.Rows}x{v.SeatsPerRow})" : "Standing / GA")</td>
+            <td>
+                <a class="btn btn-sm btn-outline-secondary" asp-action="Edit" asp-route-id="@v.VenueId">Edit</a>
+                <form asp-action="Delete" asp-route-id="@v.VenueId" method="post" class="d-inline" onsubmit="return confirm('Delete this venue?');">
+                    <button class="btn btn-sm btn-outline-danger">Delete</button>
+                </form>
+            </td>
+        </tr>
+    }
+    </tbody>
+</table>

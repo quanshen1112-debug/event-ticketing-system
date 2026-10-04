@@ -1,0 +1,60 @@
+@model SeatMapViewModel
+@{ ViewData["Title"] = "Assign Seats"; }
+
+<h4>Assign Seats &mdash; @Model.EventTitle</h4>
+<p class="text-muted">Seats for this tier were generated automatically when you created it. Use this screen to reserve some of them as house seats (comps/press, not for sale), or to assign any still-unpriced seats to this tier.</p>
+
+<form id="seatAssignForm" method="post">
+    <input type="hidden" name="eventId" value="@Model.EventId" />
+    <input type="hidden" name="ticketTypeId" value="@ViewBag.TicketTypeId" />
+
+    <div class="seat-theater">
+        <div class="seat-legend">
+            <span><span class="seat available d-inline-block align-middle me-1"></span> Available</span>
+            <span><span class="seat assigned d-inline-block align-middle me-1"></span> Assigned (this tier)</span>
+            <span><span class="seat sold d-inline-block align-middle me-1"></span> Taken (other tier)</span>
+            <span><span class="seat house d-inline-block align-middle me-1"></span> House Seat</span>
+        </div>
+
+        <div class="seat-stage">STAGE / FRONT</div>
+
+        <div class="seat-grid mx-auto d-block" style="text-align:center;">
+            @foreach (var row in Model.Seats.GroupBy(s => s.RowLabel).OrderBy(g => g.Key))
+            {
+                var seatsInRow = row.OrderBy(s => s.SeatNumber).ToList();
+                var half = (seatsInRow.Count + 1) / 2;
+                <div class="seat-row">
+                    <span class="seat-row-label me-2">@row.Key</span>
+                    @for (int i = 0; i < seatsInRow.Count; i++)
+                    {
+                        if (i == half && half < seatsInRow.Count)
+                        {
+                            <span class="seat-aisle d-inline-block"></span>
+                        }
+                        var seat = seatsInRow[i];
+                        var cls = seat.Status switch
+                        {
+                            "Assigned" => "assigned",
+                            "Taken" => "sold",
+                            "House" => "house",
+                            _ => "available"
+                        };
+                        <label class="seat @cls" style="position:relative;" title="@seat.RowLabel@(seat.SeatNumber)">
+                            @if (cls == "available" || cls == "assigned")
+                            {
+                                <input type="checkbox" name="seatIds" value="@seat.SeatId" style="position:absolute; opacity:0; inset:0; cursor:pointer;" onclick="this.parentElement.classList.toggle('selected')" />
+                            }
+                        </label>
+                    }
+                    <span class="seat-row-label ms-2">@row.Key</span>
+                </div>
+            }
+        </div>
+    </div>
+
+    <div class="mt-3">
+        <button type="submit" formaction="@Url.Action("AssignSeats")" class="btn btn-primary">Assign to Ticket Type</button>
+        <button type="submit" formaction="@Url.Action("MarkHouseSeats")" class="btn btn-outline-warning">Reserve as House Seats</button>
+        <a class="btn btn-link" asp-action="Index" asp-route-eventId="@Model.EventId">Back to Ticket Types</a>
+    </div>
+</form>

@@ -1,0 +1,40 @@
+@model EventCatalogViewModel
+@{ ViewData["Title"] = "Browse Events"; }
+
+<h4 class="mb-3">Browse Events</h4>
+
+<form id="catalogFilterForm" class="row g-2 mb-4 bg-white p-3 rounded shadow-sm">
+    <div class="col-md-4">
+        <input type="text" name="Keyword" class="form-control" placeholder="Search by keyword..." value="@Model.Keyword" />
+    </div>
+    <div class="col-md-2">
+        <select name="CategoryId" class="form-select">
+            <option value="">All Categories</option>
+            @foreach (var c in Model.Categories)
+            {
+                <option value="@c.CategoryId" selected="@(Model.CategoryId == c.CategoryId)">@c.Name</option>
+            }
+        </select>
+    </div>
+    <div class="col-md-2">
+        <input type="date" name="DateFrom" class="form-control" />
+    </div>
+    <div class="col-md-2">
+        <input type="text" name="Location" class="form-control" placeholder="Location..." />
+    </div>
+    <div class="col-md-2">
+        <select name="SortBy" class="form-select">
+            <option value="date_asc">Date: Soonest</option>
+            <option value="date_desc">Date: Latest</option>
+            <option value="price_asc">Price: Low to High</option>
+            <option value="price_desc">Price: High to Low</option>
+            <option value="popularity">Most Popular</option>
+        </select>
+    </div>
+    <input type="hidden" name="Page" value="1" />
+    <input type="hidden" name="PageSize" value="@Model.PageSize" />
+</form>
+
+<div id="eventGridContainer">
+    @await Html.PartialAsync("_EventGridPartial", Model)
+</div>

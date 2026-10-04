@@ -1,0 +1,39 @@
+@model CartViewModel
+@{ ViewData["Title"] = "My Cart"; }
+
+<h4 class="mb-3">My Cart</h4>
+
+@if (!Model.Items.Any())
+{
+    <p class="text-muted">Your cart is empty. <a asp-controller="Event" asp-action="Index">Browse events</a> to add tickets.</p>
+}
+else
+{
+    <table class="table bg-white">
+        <thead><tr><th>Event</th><th>Ticket Type</th><th>Seat</th><th>Qty</th><th>Subtotal</th><th></th></tr></thead>
+        <tbody>
+        @foreach (var item in Model.Items)
+        {
+            <tr>
+                <td>@item.EventTitle</td>
+                <td>@item.TicketTypeName (RM@(item.UnitPrice.ToString("0.00")))</td>
+                <td>@(item.SeatCode ?? "GA")</td>
+                <td>@item.Quantity</td>
+                <td>RM @item.Subtotal.ToString("0.00")</td>
+                <td>
+                    <form asp-action="Remove" method="post">
+                        <input type="hidden" name="ticketTypeId" value="@item.TicketTypeId" />
+                        <input type="hidden" name="seatId" value="@item.SeatId" />
+                        <button class="btn btn-sm btn-outline-danger">Remove</button>
+                    </form>
+                </td>
+            </tr>
+        }
+        </tbody>
+    </table>
+
+    <div class="d-flex justify-content-between align-items-center bg-white p-3 rounded shadow-sm">
+        <h5 class="mb-0">Total: RM @Model.Total.ToString("0.00")</h5>
+        <a class="btn btn-primary" asp-controller="Order" asp-action="Checkout">Proceed to Checkout</a>
+    </div>
+}

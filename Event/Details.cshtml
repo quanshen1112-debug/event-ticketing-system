@@ -1,0 +1,82 @@
+@model Event
+@{ ViewData["Title"] = Model.Title; }
+
+<div class="row">
+    <div class="col-md-8">
+        <img src="@(string.IsNullOrEmpty(Model.BannerImagePath) ? "https://placehold.co/800x300?text=" + Uri.EscapeDataString(Model.Title) : Model.BannerImagePath)" class="img-fluid rounded mb-3" style="max-height:320px;object-fit:cover;width:100%;" />
+        <span class="badge bg-primary mb-2">@Model.Category?.Name</span>
+        <h2>@Model.Title</h2>
+        <p class="text-muted">
+            <i class="fa-solid fa-calendar"></i> @Model.StartDateTime.ToString("dddd, dd MMM yyyy, h:mm tt") &mdash; @Model.EndDateTime.ToString("h:mm tt")
+        </p>
+        <p class="text-muted"><i class="fa-solid fa-location-dot"></i> @Model.Venue?.Name, @Model.Venue?.Address</p>
+        <p>@Model.Description</p>
+
+        @if (Model.Venue?.Latitude != null)
+        {
+            <!-- Additional Feature: Maps integration to display venue location -->
+            <div class="ratio ratio-16x9 mb-3">
+                <iframe src="https://www.openstreetmap.org/export/embed.html?bbox=@(Model.Venue.Longitude-0.01)%2C@(Model.Venue.Latitude-0.01)%2C@(Model.Venue.Longitude+0.01)%2C@(Model.Venue.Latitude+0.01)&layer=mapnik&marker=@(Model.Venue.Latitude)%2C@(Model.Venue.Longitude)"></iframe>
+            </div>
+        }
+
+        <h5 class="mt-4">Reviews (@Model.Reviews.Count)</h5>
+        @foreach (var r in Model.Reviews.OrderByDescending(r => r.CreatedAtUtc))
+        {
+            <div class="border-bottom py-2">
+                <strong>@r.Customer?.FullName</strong>
+                <span class="text-warning">@for (int i = 1; i <= 5; i++) { <i class="fa-solid fa-star @(i <= r.Rating ? "" : "text-muted")"></i> }</span>
+                <p class="mb-0">@r.Comment</p>
+            </div>
+        }
+        @if (User.IsInRole("Customer"))
+        {
+            <form asp-action="Review" method="post" class="mt-3">
+                <input type="hidden" name="eventId" value="@Model.EventId" />
+                <div class="mb-2">
+                    <select name="rating" class="form-select" style="width:auto;display:inline-block;">
+                        @for (int i = 5; i >= 1; i--) { <option value="@i">@i star(s)</option> }
+                    </select>
+                </div>
+                <textarea name="comment" class="form-control mb-2" placeholder="Share your thoughts about this event..."></textarea>
+                <button class="btn btn-outline-primary btn-sm">Submit Review</button>
+            </form>
+        }
+    </div>
+
+    <div class="col-md-4">
+        <div class="card p-3">
+            <h5>Tickets</h5>
+            @if (Model.Venue!.IsSeated)
+            {
+                <p class="text-muted small">This is a seated event. Choose your seats on the interactive seat map.</p>
+                <a class="btn btn-primary w-100" asp-controller="Event" asp-action="SeatMap" asp-route-id="@Model.EventId">Choose Seats</a>
+                <p class="small mt-2">
+                    Ticket tiers: @string.Join(", ", Model.TicketTypes.Select(t => $"{t.Name} (RM{t.Price:0.00})"))
+                </p>
+            }
+            else
+            {
+                @foreach (var tt in Model.TicketTypes)
+                {
+                    <form asp-controller="Cart" asp-action="AddQuantity" method="post" class="border rounded p-2 mb-2">
+                        <input type="hidden" name="eventId" value="@Model.EventId" />
+                        <input type="hidden" name="ticketTypeId" value="@tt.TicketTypeId" />
+                        <div class="d-flex justify-content-between">
+                            <div>
+                                <strong>@tt.Name</strong><br />
+                                <span class="text-muted">RM @tt.Price.ToString("0.00")</span><br />
+                                <span class="small text-muted">@(tt.QuantityRemaining) left</span>
+                            </div>
+                            <div style="width:80px;">
+                                <input type="number" name="quantity" value="1" min="1" max="10" class="form-control form-control-sm" />
+                            </div>
+                        </div>
+                        <button class="btn btn-sm btn-primary w-100 mt-2" @(tt.QuantityRemaining == 0 ? "disabled" : "")>Add to Cart</button>
+                    </form>
+                }
+            }
+        </div>
+    </div>
+</div>
+

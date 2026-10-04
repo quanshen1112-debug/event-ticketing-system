@@ -1,0 +1,44 @@
+@model List<TicketType>
+@{ ViewData["Title"] = "Ticket Types"; }
+@{ var ev = (Event)ViewBag.Event; }
+
+<h4>Ticket Types &mdash; @ev.Title</h4>
+<p class="text-muted">Venue: @ev.Venue?.Name (@(ev.Venue!.IsSeated ? "Seated" : "Standing / GA"))</p>
+
+<a class="btn btn-primary mb-3" asp-action="Create" asp-route-eventId="@ev.EventId"><i class="fa-solid fa-plus"></i> New Ticket Type</a>
+@if (ev.Venue.IsSeated)
+{
+    <a class="btn btn-outline-secondary mb-3" asp-action="ViewSeats" asp-route-eventId="@ev.EventId"><i class="fa-solid fa-chair"></i> View Seat Map</a>
+}
+
+<table class="table bg-white">
+    <thead><tr><th>Name</th><th>Price</th><th>Availability</th><th></th></tr></thead>
+    <tbody>
+    @foreach (var tt in Model)
+    {
+        <tr>
+            <td>@tt.Name</td>
+            <td>RM @tt.Price.ToString("0.00")</td>
+            <td>
+                @if (ev.Venue.IsSeated)
+                {
+                    var sold = tt.Seats.Count(s => s.Status == SeatStatus.Booked);
+                    <span>@tt.Seats.Count seat(s) &mdash; @sold sold</span>
+                    <a class="btn btn-sm btn-outline-secondary ms-2" asp-action="AssignSeats" asp-route-eventId="@ev.EventId" asp-route-ticketTypeId="@tt.TicketTypeId">Manage This Tier</a>
+                }
+                else
+                {
+                    <span>@tt.QuantitySold / @tt.QuantityAvailable sold</span>
+                }
+            </td>
+            <td>
+                <form asp-action="Delete" asp-route-id="@tt.TicketTypeId" asp-route-eventId="@ev.EventId" method="post" class="d-inline" onsubmit="return confirm('Delete this ticket type?');">
+                    <button class="btn btn-sm btn-outline-danger">Delete</button>
+                </form>
+            </td>
+        </tr>
+    }
+    </tbody>
+</table>
+
+<a class="btn btn-link" asp-controller="Event" asp-action="MyEvents">&larr; Back to My Events</a>
