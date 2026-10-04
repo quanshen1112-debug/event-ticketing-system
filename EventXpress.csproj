@@ -1,0 +1,32 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <Nullable>disable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <UserSecretsId>eventxpress-secrets</UserSecretsId>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- EF Core + SQL Server (Data Layer) -->
+    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="10.0.8" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="10.0.8">
+      <PrivateAssets>all</PrivateAssets>
+    </PackageReference>
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="10.0.8">
+      <PrivateAssets>all</PrivateAssets>
+    </PackageReference>
+
+    <!-- Additional Feature: QR code generation for e-tickets -->
+    <PackageReference Include="QRCoder" Version="1.5.1" />
+
+    <!--
+      NOTE: SignalR (real-time sales notifications) and cookie authentication
+      are both already part of the ASP.NET Core shared framework from .NET 3+
+      (via the Microsoft.NET.Sdk.Web Sdk above), so no separate NuGet package
+      is needed for either - AddSignalR()/MapHub<>() and
+      AddAuthentication().AddCookie() just work out of the box.
+    -->
+  </ItemGroup>
+
+</Project>

@@ -1,0 +1,42 @@
+{
+  "version": "3.0",
+  "defaultProvider": "cdnjs",
+  "defaultDestination": "wwwroot/lib",
+  "libraries": [
+    {
+      "library": "jquery@3.7.1",
+      "destination": "wwwroot/lib/jquery",
+      "files": [ "jquery.min.js" ]
+    },
+    {
+      "library": "jquery-validate@1.19.5",
+      "destination": "wwwroot/lib/jquery-validation",
+      "files": [ "jquery.validate.min.js" ]
+    },
+    {
+      "library": "jquery-validation-unobtrusive@4.0.0",
+      "destination": "wwwroot/lib/jquery-validation-unobtrusive",
+      "files": [ "jquery.validate.unobtrusive.min.js" ]
+    },
+    {
+      "library": "twitter-bootstrap@5.3.3",
+      "destination": "wwwroot/lib/bootstrap",
+      "files": [ "css/bootstrap.min.css", "js/bootstrap.bundle.min.js" ]
+    },
+    {
+      "library": "font-awesome@6.5.1",
+      "destination": "wwwroot/lib/fontawesome",
+      "files": [ "css/all.min.css", "webfonts/fa-solid-900.woff2", "webfonts/fa-regular-400.woff2", "webfonts/fa-brands-400.woff2" ]
+    },
+    {
+      "library": "chart.js@4.4.3",
+      "destination": "wwwroot/lib/chart.js",
+      "files": [ "chart.umd.min.js" ]
+    },
+    {
+      "library": "@microsoft/signalr@8.0.0",
+      "destination": "wwwroot/lib/signalr",
+      "files": [ "signalr.min.js" ]
+    }
+  ]
+}
